@@ -1,0 +1,5 @@
+PART main
+	RULE word *alphabet[:0=capital] ?$main
+	# RULE word *alphabet ?$main
+	RULE word |>alphabet
+END
