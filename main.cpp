@@ -21,6 +21,8 @@ int main() {
 		auto [res, i] = lanc::parse::parse(example, lanc::parse::concrete_part(rs.part("main"s), rs, noargs), rs, dict);
 		std::cout << res << std::endl;
 		std::cout << i << std::endl;
+		res->free_children();
+		delete res;
 
 		if (b.a == 0) {
 			break;

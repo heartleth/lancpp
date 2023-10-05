@@ -381,6 +381,7 @@ namespace lanc::loadlan {
 								false, false, cond
 							));
 						}
+						cond = limsv();
 					}
 					else {
 						auto [text, label] = sword.split_once('-');

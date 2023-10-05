@@ -16,7 +16,7 @@ namespace lanc::parse {
 		limsv text;
 		bool type;
 
-		syntax_tree_node(limsv p = limsv(), limsv t = limsv()) :label(p), text(t) {}
+		syntax_tree_node(limsv p = limsv(), limsv t = limsv()) :label(p), text(t), type(0) {}
 		syntax_tree_node(syntax_tree_node& cp) {
 			label = cp.label;
 			text = cp.text;
@@ -84,7 +84,6 @@ namespace lanc::parse {
 			auto iter = rule->begin();
 			auto d = iter;
 			for (; iter.ptr != 0; ++iter) {
-				// std::cout << "#";
 				auto& r = *iter.ptr;
 				if (r.is_optional || r.is_free) {
 					auto p = expectation(name, rule->step(i), new syntax_tree_node(*tree), reading);
@@ -92,7 +91,6 @@ namespace lanc::parse {
 					ret.push_back(p);
 				}
 				else {
-					// auto p = expectation(name, rule->step(i), tree, reading);
 					auto p = expectation(name, rule->step(i), new syntax_tree_node(*tree), reading);
 					p.voca_attrs.insert(p.voca_attrs.end(), voca_attrs.begin(), voca_attrs.end());
 					ret.push_back(p);
@@ -104,7 +102,6 @@ namespace lanc::parse {
 			}
 			if (d.ptr->is_optional) {
 				auto p = expectation(name, 0, tree, reading);
-				// auto p = expectation(name, 0, new syntax_tree_node(*tree), reading);
 				ret.push_back(p);
 				tree_ownership = false;
 			}
@@ -127,7 +124,10 @@ namespace lanc::parse {
 		template_node* argrules(template_node* rule) {
 			auto head = new template_node(0);
 			auto tail = head;
-			for (auto& r : *rule) {
+			template_node* iter = rule;
+
+			for (iter = rule; iter != 0; iter = (template_node*)iter->next) {
+				template_node r = *iter;
 				bool qualified = true;
 				if (r.condition.is_some()) {
 					auto [param, value] = r.condition.split_once('=');
@@ -141,14 +141,14 @@ namespace lanc::parse {
 						is_not = false;
 						param_index = param.substr(1).to_n();
 					}
-					if (param_index >= cargs.size()) {
-						qualified = is_not ^ (value == "0");
-					}
-					else {
-						qualified = is_not ^ (value == cargs[param_index]);
-					}
+					qualified = compare_arg(cargs, param_index, value) ^ is_not;
+					// if (param_index >= cargs.size()) {
+					// 	qualified = is_not ^ (value == "0");
+					// }
+					// else {
+					// 	qualified = is_not ^ (value == cargs[param_index]);
+					// }
 				}
-
 				if (qualified) {
 					if (r.content->type == loadlan::template_type_enum::Embed) {
 						// auto embed_ptr = vals[r.content->content[0].as_str()];
@@ -211,18 +211,22 @@ namespace lanc::parse {
 					vals.insert({ pr.name_or_value.as_str(), (template_node*)pr.tnode });
 				}
 				else if (pr.type == loadlan::ruleset::phrase_rule::If) {
-					if (args.size() <= pr.param) {
-						if (pr.name_or_value == "0" ^ pr.is_trap_or_unless) {
-							auto r2 = concrete_part(pr, rset, args);
-							rules.insert(rules.end(), r2.rules.begin(), r2.rules.end());
-						}
+					if (compare_arg(args, pr.param, pr.name_or_value) ^ pr.is_trap_or_unless) {
+						auto r2 = concrete_part(pr, rset, args);
+						rules.insert(rules.end(), r2.rules.begin(), r2.rules.end());
 					}
-					else {
-						if (args[pr.param].as_sv() == pr.name_or_value.as_sv() ^ pr.is_trap_or_unless) {
-							auto r2 = concrete_part(pr, rset, args);
-							rules.insert(rules.end(), r2.rules.begin(), r2.rules.end());
-						}
-					}
+					// if (args.size() <= pr.param) {
+					// 	if (pr.name_or_value == "0" ^ pr.is_trap_or_unless) {
+					// 		auto r2 = concrete_part(pr, rset, args);
+					// 		rules.insert(rules.end(), r2.rules.begin(), r2.rules.end());
+					// 	}
+					// }
+					// else {
+					// 	if (args[pr.param].as_sv() == pr.name_or_value.as_sv() ^ pr.is_trap_or_unless) {
+					// 		auto r2 = concrete_part(pr, rset, args);
+					// 		rules.insert(rules.end(), r2.rules.begin(), r2.rules.end());
+					// 	}
+					// }
 				}
 			}
 		}

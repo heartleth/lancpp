@@ -23,8 +23,8 @@ namespace lanc {
 	class limsv {
 	public:
 		char* str_end;
-		void* a;
-		void* b;
+		char* a;
+		char* b;
 
 		limsv(char* start, char* last, char* end) :a(start), b(last), str_end(end) {}
 		limsv(char* start, char* end) :a(start), b(end), str_end(end) {}
@@ -90,7 +90,7 @@ namespace lanc {
 			}
 		}
 		std::pair<limsv, limsv> split_once(const char c) {
-			for (char* iter = (char*)a; iter <= b; iter++) {
+			for (char* iter = (char*)a; iter < b; iter++) {
 				if (*iter == c) {
 					return { limsv((char*)a, iter, str_end), limsv(iter + 1, (char*)b, str_end) };
 				}

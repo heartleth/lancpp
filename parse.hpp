@@ -61,10 +61,13 @@ namespace lanc::parse {
 							std::vector<limsv> t2;
 							for (int j = 1; j < prule.content->content.size(); j++) {
 								auto& e = prule.content->content[j];
-								auto [ns, ms] = e.substr(1).split_once(':');
-								auto n = ns.to_n();
-								auto m = ms.to_n();
-								if (e[0] == '@') {
+								if (!e.is_some()) {
+									t2.push_back(limsv());
+								}
+								else if (e[0] == '@') {
+									auto [ns, ms] = e.substr(1).split_once(':');
+									auto n = ns.to_n();
+									auto m = ms.to_n();
 									if (n < expect.voca_attrs.size()) {
 										if (m < expect.voca_attrs[n]->size()) {
 											t2.push_back((*expect.voca_attrs[n])[m]);
@@ -96,7 +99,6 @@ namespace lanc::parse {
 					}
 				}
 				else {
-					// std::cout << "OK " << name.as_sv() << reading - (char*)s.a << std::endl;
 					winners.push_back({ expect.tree, reading });
 					expect.tree_ownership = false;
 					expect.kill();
