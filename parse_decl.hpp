@@ -240,11 +240,11 @@ namespace lanc::parse {
 		for (; iter.ptr != 0; ++iter) {
 			auto& r = *iter.ptr;
 			if (r.is_optional || r.is_free) {
-				auto p = expectation(name, rule->step(i), new syntax_tree_node(name), (char*)na);
+				auto p = expectation(name, rule->step(i), new syntax_tree_node(name), na);
 				ret.push_back(p);
 			}
 			else {
-				auto p = expectation(name, rule->step(i), new syntax_tree_node(name), (char*)na);
+				auto p = expectation(name, rule->step(i), new syntax_tree_node(name), na);
 				ret.push_back(p);
 				return ret;
 			}
@@ -252,7 +252,7 @@ namespace lanc::parse {
 			i += 1;
 		}
 		if (iter.ptr == 0) {
-			ret.push_back(expectation(name, 0, new syntax_tree_node(name), (char*)na));
+			ret.push_back(expectation(name, 0, new syntax_tree_node(name), na));
 		}
 		return ret;
 	}

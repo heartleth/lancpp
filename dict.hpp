@@ -27,7 +27,7 @@ namespace lanc::dict {
 		std::unordered_map<std::string, std::vector<word>> dict;
 	public:
 		void register_word(std::vector<limsv>& words, std::string& part) {
-			if (dict.contains(part)) {
+			if (dict.count(part)) {
 				dict[part].push_back(word(words));
 			}
 			else {
@@ -43,7 +43,7 @@ namespace lanc::dict {
 				if (words.empty()) {
 					goto gtcontinue_d;
 				}
-				if (*(char*)words[0].a == '#') {
+				if (*words[0].a == '#') {
 					goto gtcontinue_d;
 				}
 				if (words[0] == "PART") {
@@ -67,7 +67,7 @@ namespace lanc::dict {
 		std::vector<word*> search_dict(std::string& part, limsv cond, limsv& s, char* reading, parse::expectation& expect, std::vector<limsv>& cargs) {
 			std::vector<word*> ret;
 			for (auto& word : dict[part]) {
-				if (((char*)s.b - reading) < word.text.len()) {
+				if ((s.b - reading) < word.text.len()) {
 					// ret.push_back(&word);
 					continue;
 				}

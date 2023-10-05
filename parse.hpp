@@ -7,7 +7,7 @@
 namespace lanc::parse {
 	std::pair<syntax_tree_node*, unsigned int> parse(limsv s, concrete_part part, loadlan::ruleset& rules, dict::full_dictionary& dictionary);
 	std::pair<syntax_tree_node*, unsigned int> fit_rules(limsv s, limsv name, template_node* rule, loadlan::ruleset& rules, std::vector<limsv>& cargs, dict::full_dictionary& dictionary, bool is_trap = false) {
-		auto expectations = nexts(name, rule, (char*)s.a);
+		auto expectations = nexts(name, rule, s.a);
 		std::vector<std::pair<syntax_tree_node*, char*>> winners;
 		unsigned int i = 0;
 
@@ -121,9 +121,9 @@ namespace lanc::parse {
 			std::pair<syntax_tree_node*, unsigned int> winner;
 			unsigned int max = 0;
 			for (auto& [t, i] : winners) {
-				if (i - (char*)s.a > max) {
+				if (i - s.a > max) {
 					winner.first = t;
-					winner.second = max = i - (char*)s.a;
+					winner.second = max = i - s.a;
 				}
 			}
 
@@ -133,7 +133,7 @@ namespace lanc::parse {
 
 	std::pair<syntax_tree_node*, unsigned int> parse(limsv s, concrete_part part, loadlan::ruleset& rules, dict::full_dictionary& dictionary) {
 		auto s2 = s.trim_front_iter();
-		unsigned int trims = (char*)s2.a - (char*)s.a;
+		unsigned int trims = s2.a - s.a;
 		syntax_tree_node* mp = 0;
 		unsigned int m = trims;
 		std::string rns;
@@ -146,7 +146,7 @@ namespace lanc::parse {
 						mp = tr;
 						m = x + trims;
 						rns = name.as_str();
-						rns.copy((char*)name.a, name.len());
+						rns.copy(name.a, name.len());
 					}
 				}
 			}

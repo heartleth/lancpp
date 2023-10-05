@@ -32,25 +32,25 @@ namespace lanc {
 		limsv(char* end) :a(0), b(0), str_end(end) {}
 		limsv() : a(0), b(0), str_end(0) {}
 		std::string_view as_sv() const {
-			return std::string_view((char*)a, (char*)b - (char*)a);
+			return std::string_view(a, b - a);
 		}
 		std::string as_str() const {
-			return std::string((char*)a, (char*)b - (char*)a);
+			return std::string(a, b - a);
 		}
 		int to_n() const {
 			if (len() == 1) {
-				return *(char*)a - '0';
+				return *a - '0';
 			}
 			else {
-				return atoi(std::string((char*)a, (char*)b).c_str());
+				return atoi(std::string(a, b).c_str());
 			}
 		}
 		limsv substr(int s, int e = 99999) const {
 			if (e >= 0) {
-				return limsv((char*)minof((char*)a + s, (char*)b), (char*)minof((char*)a + e, (char*)b), str_end);
+				return limsv(minof(a + s, b), minof(a + e, b), str_end);
 			}
 			else {
-				return limsv((char*)minof((char*)a + s, (char*)b), (char*)minof((char*)b + e, (char*)b), str_end);
+				return limsv(minof(a + s, b), minof(b + e, b), str_end);
 			}
 		}
 		limsv trim_front_iter() const {
@@ -58,22 +58,22 @@ namespace lanc {
 			if (len() == 0) {
 				return *this;
 			}
-			while (((char*)a)[i] == ' ' || ((char*)a)[i] == '\t' || ((char*)a)[i] == '\r' || ((char*)a)[i] == '\n') {
+			while ((a)[i] == ' ' || (a)[i] == '\t' || (a)[i] == '\r' || (a)[i] == '\n') {
 				i += 1;
 			}
 			return substr(i);
 		}
 		limsv operator>>(char* na) const {
-			return limsv(na, (char*)b, str_end);
+			return limsv(na, b, str_end);
 		}
 		unsigned int len() const {
-			return (char*)b - (char*)a;
+			return b - a;
 		}
 		unsigned int max_len() const {
-			return str_end - (char*)a;
+			return str_end - a;
 		}
 		void operator+= (const int l) {
-			a = (char*)a + l;
+			a = a + l;
 			if (a > b) {
 				a = b;
 			}
@@ -83,23 +83,23 @@ namespace lanc {
 		}
 		char operator[] (int i) const {
 			if (i >= 0) {
-				return ((char*)a)[i];
+				return (a)[i];
 			}
 			else {
-				return ((char*)b)[i];
+				return (b)[i];
 			}
 		}
 		std::pair<limsv, limsv> split_once(const char c) {
-			for (char* iter = (char*)a; iter < b; iter++) {
+			for (char* iter = a; iter < b; iter++) {
 				if (*iter == c) {
-					return { limsv((char*)a, iter, str_end), limsv(iter + 1, (char*)b, str_end) };
+					return { limsv(a, iter, str_end), limsv(iter + 1, b, str_end) };
 				}
 			}
 			return { *this, limsv(str_end) };
 		}
 		bool operator> (const char& t) const {
-			char* p = (char*)a;
-			for (; p <= (char*)b; p++) {
+			char* p = a;
+			for (; p <= b; p++) {
 				if (*p == t) {
 					return true;
 				}
@@ -110,10 +110,10 @@ namespace lanc {
 			if (a == t.a && str_end == t.str_end) {
 				return b >= t.b;
 			}
-			char* p = (char*)a;
+			char* p = a;
 			int i = 0;
-			for (; p <= (char*)b; p++) {
-				if (((char*)t.a)[i] != *p) {
+			for (; p <= b; p++) {
+				if ((t.a)[i] != *p) {
 					return false;
 				}
 				i += 1;
@@ -124,20 +124,20 @@ namespace lanc {
 			return false;
 		}
 		std::pair<limsv, limsv> next_line() const {
-			for (char* iter = (char*)a; iter <= b; iter++) {
+			for (char* iter = a; iter <= b; iter++) {
 				if (*iter == '\r') {
-					return { limsv((char*)a, iter, str_end), limsv(iter + 2, (char*)b, str_end) };
+					return { limsv(a, iter, str_end), limsv(iter + 2, b, str_end) };
 				}
 				else if (*iter == '\n') {
-					return { limsv((char*)a, iter, str_end), limsv(iter + 1, (char*)b, str_end) };
+					return { limsv(a, iter, str_end), limsv(iter + 1, b, str_end) };
 				}
 			}
 			return { *this, limsv(str_end) };
 		}
 		std::vector<limsv> words() const {
 			std::vector<limsv> res;
-			char* lpos = (char*)a;
-			for (char* iter = (char*)a; iter <= b; iter++) {
+			char* lpos = a;
+			for (char* iter = a; iter <= b; iter++) {
 				if (*iter == ' ' || *iter == '\t') {
 					if (iter > lpos) {
 						res.push_back(limsv(lpos, iter, str_end));
@@ -145,15 +145,15 @@ namespace lanc {
 					lpos = iter + 1;
 				}
 			}
-			if ((char*)b > lpos) {
-				res.push_back(limsv(lpos, (char*)b, str_end));
+			if (b > lpos) {
+				res.push_back(limsv(lpos, b, str_end));
 			}
 			return res;
 		}
 		bool operator==(const char* s) const {
-			char* iter = (char*)a;
+			char* iter = a;
 			for (; iter < b; iter++) {
-				if (*iter != s[iter - (char*)a]) {
+				if (*iter != s[iter - a]) {
 					return false;
 				}
 			}
@@ -163,12 +163,12 @@ namespace lanc {
 			return false;
 		}
 		bool operator==(const limsv& s) const {
-			char* iter = (char*)a;
+			char* iter = a;
 			if (s.len() != len()) {
 				return false;
 			}
 			for (; iter < b; iter++) {
-				if (*iter != s[iter - (char*)a]) {
+				if (*iter != s[iter - a]) {
 					return false;
 				}
 			}
